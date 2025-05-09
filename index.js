@@ -30,10 +30,34 @@ async function run() {
     );
 
     // blogs related apis
-    const jobsCollection = client.db("blogsDB").collection("blogs");
+    const blogsCollection = client.db("blogsDB").collection("blogs");
 
+    // all blogs
     app.get("/blogs", async (req, res) => {
-      const result = await jobsCollection.find().toArray();
+      const result = await blogsCollection.find().toArray();
+      res.send(result);
+    });
+
+    // add blogs
+    app.post("/blogs", async (req, res) => {
+      const newBlog = req.body;
+      const result = await blogsCollection.insertOne(newBlog);
+      res.send(result);
+    });
+
+    // featured blogs
+    app.get("/featuredBlogs", async (req, res) => {
+      const allBlogs = await blogsCollection.find().toArray();
+      const featuredBlogs = allBlogs
+        .sort((a, b) => b.longDescription.length - a.longDescription.length)
+        .slice(0, 10);
+
+      res.send(featuredBlogs);
+    });
+
+    // my blogs
+    app.get("/myBlogs", async (req, res) => {
+      const result = await blogsCollection.find().toArray();
       res.send(result);
     });
   } finally {
